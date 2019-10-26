@@ -100,7 +100,7 @@ void ping(struct sockaddr_in *addr) {
         perror("socket");
         return;
     }
-    if ( setsockopt(sd, SOL_IP, IP_TTL, &val, sizeof(val)) != 0)
+    if ( setsockopt(sd, IPPROTO_IP, IP_TTL, &val, sizeof(val)) != 0)
         perror("Set TTL option");
 /*    if ( fcntl(sd, F_SETFL, O_NONBLOCK) != 0 )
         perror("Request nonblocking I/O");*/

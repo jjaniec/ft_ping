@@ -1,3 +1,4 @@
+#include <ft_printf.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -18,9 +19,10 @@
 #ifndef FT_PING_H
 # define FT_PING_H
 
-# define SOCK_TYPE				SOCK_RAW
-# define SOCK_PROTO				IPPROTO_ICMP
-# define ICMP_ECHO_SEQ_COUNT	5
+# define GETADDRINFO_RESOLVE_PROTO	"http"
+# define SOCK_TYPE					SOCK_RAW
+# define SOCK_PROTO					IPPROTO_ICMP
+# define ICMP_ECHO_SEQ_COUNT		5
 
 unsigned short		calc_checksum(void *b, int len);
 
