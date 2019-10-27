@@ -80,6 +80,7 @@ static void		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, str
 	);
 	ft_ping_info->addr = addr;
 	ft_ping_info->hostname = hostname;
+	gettimeofday(&(g_ft_ping_info->starttime), NULL);
 }
 
 /*

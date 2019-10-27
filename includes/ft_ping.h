@@ -32,6 +32,7 @@
 typedef struct			s_ft_ping_info {
 	struct sockaddr_in	*addr;
 	char				*hostname;
+	struct timeval		starttime;
 	unsigned int		pck_transmitted;
 	unsigned int		pck_received;
 	sig_atomic_t		wait_for_sigalrm;
