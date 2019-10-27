@@ -25,12 +25,12 @@ SRC = $(addprefix $(SRC_DIR), $(SRC_NAME))
 OBJ = $(addprefix $(OBJ_DIR), $(SRC_NAME:.c=.o))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra # -Werror
 DEV_FLAGS = -fsanitize=address -fno-omit-frame-pointer
 IFLAGS = -I./ft_printf/includes -I./$(INCLUDES_DIR)
 LFLAGS = -L./ft_printf -lftprintf
 
-CFLAGS += $(DEV_FLAGS)
+# CFLAGS += $(DEV_FLAGS)
 FT_PRINTF_DIR = ./ft_printf
 LIBFTPRINTF = $(addprefix $(FT_PRINTF_DIR),"/libftprintf.a")
 
