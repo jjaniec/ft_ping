@@ -15,6 +15,8 @@ NAME = ft_ping
 UNAME_S := $(shell uname -s)
 
 SRC_NAME = 	calc_checksum.c \
+			resolve_hostname.c \
+			ft_ping.c \
 			main.c
 
 SRC_DIR = ./srcs/
