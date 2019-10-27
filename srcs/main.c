@@ -12,6 +12,8 @@
 
 #include <ft_ping.h>
 
+t_ft_ping_info		*g_ft_ping_info;
+
 /*
 Allowed functions:
 - getpid.
@@ -34,10 +36,10 @@ Allowed functions:
 ** https://stackoverflow.com/questions/32593697/understanding-the-msghdr-structure-from-sys-socket-h
 */
 
-static int          init_socket(int *s)
+static int		init_socket(int *s)
 {
-	int         r;
-	int   		on;
+	int			r;
+	int			on;
 
 	r = 0;
 	on = 255;
@@ -65,6 +67,22 @@ static int          init_socket(int *s)
 }
 
 /*
+** Init shared global struct
+*/
+
+static void		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
+{
+	g_ft_ping_info = ft_ping_info;
+	ft_memset(\
+		(void *)ft_ping_info + sizeof(struct sockaddr_in *), \
+		0, \
+		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *) \
+	);
+	ft_ping_info->addr = addr;
+	ft_ping_info->hostname = hostname;
+}
+
+/*
 ** in_addr: https://apr.apache.org/docs/apr/trunk/structin__addr.html
 ** sockaddr_in: https://docs.huihoo.com/doxygen/linux/kernel/3.7/structsockaddr__in.html
 ** https://stackoverflow.com/questions/18609397/whats-the-difference-between-sockaddr-sockaddr-in-and-sockaddr-in6
@@ -74,7 +92,8 @@ int		main(int ac, char **av)
 {
 	struct in_addr			ip;
 	struct sockaddr_in		addr;
-	int                     s;
+	int						s;
+	t_ft_ping_info			ft_ping_info;
 
 	if (ac != 2)
 	{
@@ -88,6 +107,8 @@ int		main(int ac, char **av)
 	}
 	addr.sin_family = AF_INET;
 	addr.sin_addr = ip;
-	printf("PING %s (%s)\n", av[1], inet_ntoa(ip));
+	init_ft_ping_info(&ft_ping_info, av[1], &addr);
+	signal(SIGALRM, handle_sigalrm);
+	signal(SIGINT, handle_sigint);
 	return (init_socket(&s) || ft_ping(s, &addr));
 }

@@ -17,6 +17,8 @@ UNAME_S := $(shell uname -s)
 SRC_NAME = 	calc_checksum.c \
 			resolve_hostname.c \
 			ft_ping.c \
+			handle_sigalrm.c \
+			handle_sigint.c \
 			main.c
 
 SRC_DIR = ./srcs/
@@ -28,11 +30,11 @@ OBJ = $(addprefix $(OBJ_DIR), $(SRC_NAME:.c=.o))
 
 CC = gcc
 CFLAGS = -Wall -Wextra # -Werror
-DEV_FLAGS = -fsanitize=address -fno-omit-frame-pointer
+# DEV_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer
 IFLAGS = -I./ft_printf/includes -I./$(INCLUDES_DIR)
 LFLAGS = -L./ft_printf -lftprintf
 
-# CFLAGS += $(DEV_FLAGS)
+CFLAGS += $(DEV_FLAGS)
 FT_PRINTF_DIR = ./ft_printf
 LIBFTPRINTF = $(addprefix $(FT_PRINTF_DIR),"/libftprintf.a")
 
