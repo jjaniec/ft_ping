@@ -32,6 +32,7 @@ void		handle_sigint(int sig)
 	struct timeval	now;
 
 	gettimeofday(&now, NULL);
+	write(1, "\n", 1);
 	print_statistics_header(g_ft_ping_info->hostname);
 	print_pck_statistics(g_ft_ping_info->pck_transmitted, g_ft_ping_info->pck_received, \
 		&(g_ft_ping_info->starttime), &now);

@@ -21,21 +21,23 @@ extern t_ft_ping_info	*g_ft_ping_info;
 ** http://download.opendds.org/doxygen/ace_tao/html/libace-doc/a00839.html
 */
 
-static ssize_t		send_icmp_echo(int s, struct sockaddr_in *addr, struct timeval *time_echo, int _icmp_seq)
+static ssize_t		send_icmp_echo(int s, struct sockaddr_in *addr)
 {
 	char			buff[FT_PING_BUFF_LEN];
 	struct icmp		*icmp_out;
 
+	g_ft_ping_info->pck_transmitted++;
 	icmp_out = (struct icmp *)buff;
 	icmp_out->icmp_type = ICMP_ECHO;
 	icmp_out->icmp_code = 0;
 	icmp_out->icmp_id = getpid();
-	icmp_out->icmp_seq = _icmp_seq;
+	icmp_out->icmp_seq = g_ft_ping_info->pck_transmitted;
+	ft_memset(icmp_out->icmp_data, 0x77, FT_PING_DATA_LEN);
+	gettimeofday((struct timeval *)icmp_out->icmp_data, NULL);
 	icmp_out->icmp_cksum = 0;
 	ft_memcpy(buff, icmp_out, sizeof(icmp_out));
 	icmp_out->icmp_cksum = calc_checksum(buff, sizeof(icmp_out) + 1);
 	ft_memcpy(buff, icmp_out, sizeof(icmp_out));
-	gettimeofday(time_echo, NULL);
 	return (
 		sendto(s, buff, sizeof(icmp_out) + 1, 0, (struct sockaddr *)addr, sizeof(*addr))
 	);
@@ -56,6 +58,7 @@ static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char 
 	struct msghdr	reply;
 	// struct cmsghdr *reply_cmhdr;
 
+	g_ft_ping_info->pck_received++;
 	iov_reply.iov_base = buff;
 	iov_reply.iov_len = sizeof(char) * FT_PING_BUFF_LEN;
 	reply.msg_name = (struct sockaddr *)addr_resp;
@@ -80,14 +83,18 @@ static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char 
 ** cmsghdr: http://alas.matf.bg.ac.rs/manuals/lspe/snode=153.html
 */
 
-static int			format_reply_output(ssize_t bytes_recv, struct sockaddr_in *addr_resp, char *reply_data, struct timeval *start, struct timeval *stop)
+static int			format_reply_output(ssize_t bytes_recv, struct sockaddr_in *addr_resp, char *reply_data, struct timeval *stop)
 {
 	// struct cmsghdr 		*reply_cmhdr;
+	struct ip			*ip_in;
 	struct icmp			*icmp_in;
+	struct timeval		*start;
 
+	ip_in = (struct ip *)reply_data;
 	icmp_in = (struct icmp *)((void *)reply_data + sizeof(struct ip));
-	printf("%zu bytes from %s: icmp_seq=%d ttl=0 time=%'.3fms\n", \
-		bytes_recv, inet_ntoa(addr_resp->sin_addr), icmp_in->icmp_seq, \
+	start = (struct timeval *)icmp_in->icmp_data;
+	printf("%zu bytes from %s: icmp_seq=%d ttl=%d time=%'.3fms\n", \
+		bytes_recv, inet_ntoa(addr_resp->sin_addr), icmp_in->icmp_seq, ip_in->ip_ttl, \
 		(double)(stop->tv_sec - start->tv_sec) * 1000 + (double)(stop->tv_usec - start->tv_usec) / 1000);
 	return (0);
 }
@@ -98,31 +105,28 @@ int					ft_ping(int s, struct sockaddr_in *addr)
 	ssize_t				bytes_sent;
 	ssize_t				bytes_recv;
 	struct sockaddr_in	addr_resp;
-	struct timeval		time_echo;
 	struct timeval		time_reply;
 	struct msghdr		reply;
-	int					i;
 
-	i = 0;
-	printf("PING %s (%s) .\n", g_ft_ping_info->hostname, inet_ntoa(g_ft_ping_info->addr->sin_addr));
-	while (++i != FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT)
+	printf("PING %s (%s) %d(%zu) bytes of data.\n", g_ft_ping_info->hostname, \
+		inet_ntoa(g_ft_ping_info->addr->sin_addr), \
+		FT_PING_DATA_LEN, FT_PING_DATA_LEN + sizeof(struct iphdr) + sizeof(struct icmphdr));
+	while (g_ft_ping_info->pck_transmitted != FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT)
 	{
 		while (g_ft_ping_info->wait_for_sigalrm)
 			;
-		if ((bytes_sent = send_icmp_echo(s, addr, &time_echo, i)) == 0)
+		if ((bytes_sent = send_icmp_echo(s, addr)) == 0)
 		{
 			dprintf(2, "sendto() failed\n");
 			exit(1);
 		}
-		g_ft_ping_info->pck_transmitted++;
 		if ((bytes_recv = recv_icmp_echo_reply(s, &addr_resp, reply_buff)) < 0)
 		{
 			dprintf(2, "recv() failed\n");
 			exit(1);
 		}
-		g_ft_ping_info->pck_received++;
 		gettimeofday(&time_reply, NULL);
-		format_reply_output(bytes_recv, &addr_resp, reply_buff, &time_echo, &time_reply);
+		format_reply_output(bytes_recv, &addr_resp, reply_buff, &time_reply);
 		g_ft_ping_info->wait_for_sigalrm = true;
 		alarm(1);
 	}

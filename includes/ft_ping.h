@@ -28,6 +28,7 @@
 # define FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT		-1
 
 # define FT_PING_BUFF_LEN							2000
+# define FT_PING_DATA_LEN							56
 
 typedef struct			s_ft_ping_info {
 	struct sockaddr_in	*addr;
@@ -35,6 +36,10 @@ typedef struct			s_ft_ping_info {
 	struct timeval		starttime;
 	unsigned int		pck_transmitted;
 	unsigned int		pck_received;
+	double				min;
+	double				avg;
+	double				max;
+	double				mdev;
 	sig_atomic_t		wait_for_sigalrm;
 }						t_ft_ping_info;
 
