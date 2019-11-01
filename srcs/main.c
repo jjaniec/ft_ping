@@ -48,6 +48,11 @@ static int		init_socket(int *s)
 		dprintf(2, "socket() error, are you root ?\n");
 		r = 1;
 	}
+	else if (setsockopt(*s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) != 0)
+	{
+		dprintf(2, "Failed to set IP_HDRINCL option on socket\n");
+		r = 1;
+	}
 	else if (setsockopt(*s, IPPROTO_IP, IP_TTL, &on, sizeof(on)) != 0)
 	{
 		dprintf(2, "Failed to set TTL option on socket\n");

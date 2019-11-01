@@ -26,7 +26,7 @@ int			resolve_hostname(char *hostname, struct in_addr *ip)
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	if (getaddrinfo(hostname, "http", &hints, &res))
+	if (getaddrinfo(hostname, NULL, &hints, &res))
 	{
 		printf("getaddrinfo() failed!\n");
 		return (1);
