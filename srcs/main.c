@@ -103,14 +103,14 @@ int		main(int ac, char **av)
 	int						s;
 	t_ft_ping_info			ft_ping_info;
 
-	if (ac != 2)
+	if (ac == 1)
 	{
 		printf("Usage: %s destination_ip\n", av[0]);
 		return (1);
 	}
 	else if (resolve_hostname(av[1], &ip))
 	{
-		dprintf(2, "%s: cannot resolve %s: Unknown host\n", av[0], av[1]);
+		dprintf(2, "%s: %s: Name or service not known\n", av[0], av[1]);
 		return (1);
 	}
 	addr.sin_family = AF_INET;

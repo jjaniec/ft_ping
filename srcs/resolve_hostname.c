@@ -23,21 +23,11 @@ int			resolve_hostname(char *hostname, struct in_addr *ip)
 	struct addrinfo		hints;
 	struct addrinfo		*res;
 
-	memset(&hints, 0, sizeof(hints));
+	ft_memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	if (getaddrinfo(hostname, NULL, &hints, &res))
-	{
-		printf("getaddrinfo() failed!\n");
 		return (1);
-	}
-	// res_ptr = res;
-	// while (res_ptr)
-	// {
-	// 	printf("Resolved to: %s\n", 
-	// 		inet_ntoa((((struct sockaddr_in *)res_ptr->ai_addr)->sin_addr)));
-	// 	res_ptr = res_ptr->ai_next;
-	// }
 	*ip = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
 	return (0);
 }

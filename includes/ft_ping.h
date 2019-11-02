@@ -123,4 +123,6 @@ void				handle_sigint(int sig);
 
 ssize_t				send_icmp_echo(int s, struct sockaddr_in *dest);
 
+void				update_rtt(double time);
+
 #endif

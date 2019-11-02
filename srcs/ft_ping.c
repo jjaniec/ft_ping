@@ -61,6 +61,18 @@ static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char 
 }
 
 /*
+** Calculate time difference between 2 timeval structs using tv_sec & tv_usec
+*/
+
+static double		calc_timeval_diff(struct timeval *start, struct timeval *stop)
+{
+	return (
+		(double)(stop->tv_sec - start->tv_sec) * 1000 + \
+		(double)(stop->tv_usec - start->tv_usec) / 1000
+	);
+}
+
+/*
 ** Send ICMP echo requests & wait for icmp echo replies
 **
 ** iovec: https://doc.riot-os.org/structiovec.html
@@ -71,21 +83,23 @@ static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char 
 
 static int			format_reply_output(ssize_t bytes_recv, struct sockaddr_in *addr_resp, char *reply_data, struct timeval *stop)
 {
-	// struct cmsghdr 		*reply_cmhdr;
 	struct iphdr		*ip_in;
 	struct icmphdr		*icmp_in;
-	struct timeval		*start;
+	double				timeval_diff;
 
 	ip_in = (struct iphdr *)reply_data;
 	icmp_in = (void *)reply_data + IPHDR_SIZE;
-	start = (struct timeval *)((void *)reply_data + IPHDR_SIZE + ICMPHDR_SIZE + FT_PING_DATA_TIMESTAMP_OFFSET);
+	timeval_diff = calc_timeval_diff((struct timeval *)((void *)reply_data + IPHDR_SIZE + ICMPHDR_SIZE + FT_PING_DATA_TIMESTAMP_OFFSET), stop);
 	if (icmp_in->un.echo.id != htons(getpid()))
 		return 0;
 	if (icmp_in->type == ICMP_ECHOREPLY)
+	{
 		printf("%"PRIu16" bytes from %s: icmp_seq=%d ttl=%d time=%'.1fms\n", \
 			(uint16_t)(ntohs(ip_in->tot_len) - IPHDR_SIZE), \
 			inet_ntoa((struct in_addr) {.s_addr = ip_in->saddr}), icmp_in->un.echo.sequence, ip_in->ttl, \
-			(double)(stop->tv_sec - start->tv_sec) * 1000 + (double)(stop->tv_usec - start->tv_usec) / 1000);
+			timeval_diff);
+		update_rtt(timeval_diff);
+	}
 	else
 		printf("%zu bytes from %s: %s\n", \
 			ip_in->tot_len - sizeof(struct iphdr), inet_ntoa(addr_resp->sin_addr), \
@@ -113,7 +127,6 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 	g_ft_ping_info->pck_received++;
 	gettimeofday(&time_reply, NULL);
 	format_reply_output(bytes_recv, &addr_resp, reply_buff, &time_reply);
-	// update_rtt();
 	if (g_ft_ping_info->pck_transmitted != FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT)
 		return (watch_icmp_replies(s, addr));
 	else
