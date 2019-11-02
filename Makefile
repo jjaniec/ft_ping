@@ -19,6 +19,7 @@ SRC_NAME = 	calc_checksum.c \
 			ft_ping.c \
 			handle_sigalrm.c \
 			handle_sigint.c \
+			send_icmp_echo.c \
 			main.c
 
 SRC_DIR = ./srcs/

@@ -75,7 +75,7 @@ static int		init_socket(int *s)
 ** Init shared global struct
 */
 
-static void		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
+static int		init_ft_ping_info(int s, t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
 {
 	g_ft_ping_info = ft_ping_info;
 	ft_memset(\
@@ -83,9 +83,11 @@ static void		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, str
 		0, \
 		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *) \
 	);
+	ft_ping_info->socket = s;
 	ft_ping_info->addr = addr;
 	ft_ping_info->hostname = hostname;
-	gettimeofday(&(g_ft_ping_info->starttime), NULL);
+	return gettimeofday(&(g_ft_ping_info->starttime), NULL);
+
 }
 
 /*
@@ -113,8 +115,7 @@ int		main(int ac, char **av)
 	}
 	addr.sin_family = AF_INET;
 	addr.sin_addr = ip;
-	init_ft_ping_info(&ft_ping_info, av[1], &addr);
 	signal(SIGALRM, handle_sigalrm);
 	signal(SIGINT, handle_sigint);
-	return (init_socket(&s) || ft_ping(s, &addr));
+	return (init_socket(&s) || init_ft_ping_info(s, &ft_ping_info, av[1], &addr) || ft_ping(s, &addr));
 }

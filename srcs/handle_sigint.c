@@ -4,27 +4,29 @@ extern t_ft_ping_info	*g_ft_ping_info;
 
 static void		print_statistics_header(char *hostname)
 {
-	write(1, "--- ", 4);
-	write(1, hostname, ft_strlen(hostname));
-	write(1, " ping statistics ---\n", 22);
+	printf("--- %s ping statistics ---\n", hostname);
 }
 
 static void		print_pck_statistics(unsigned int pck_transmitted, unsigned int pck_received, 
 					struct timeval *start, struct timeval *stop)
 {
-	ft_putnbr(pck_transmitted);
-	write(1, " packets transmitted, ", 22);
-	ft_putnbr(pck_received);
-	write(1, " received, ", 11);
-	ft_putnbr(100 - (100 * (pck_transmitted / pck_received)));
-	write(1, "% packet loss, time ", 20);
-	ft_putnbr(\
+	printf("%d packets transmitted, %d received, %d%% packet loss, time %.0fms\n", \
+		pck_transmitted, \
+		pck_received, \
+		(!pck_received) ? (100) : (100 - (100 * (1 - (pck_transmitted / pck_received)))), \
 		(double)(stop->tv_sec - start->tv_sec) * 1000 + \
-		(double)(stop->tv_usec - start->tv_usec) / 1000 \
+			(double)(stop->tv_usec - start->tv_usec) / 1000
 	);
-	write(1, "ms\n", 3);
-	write(1, "rtt min/avg/max/mdev = ", 23);
-	write(1, "\n", 1);
+}
+
+static void		print_rtt(double min, double avg, double max, double mdev)
+{
+	printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n", \
+		min, \
+		avg, \
+		max, \
+		mdev
+	);
 }
 
 void		handle_sigint(int sig)
@@ -36,5 +38,6 @@ void		handle_sigint(int sig)
 	print_statistics_header(g_ft_ping_info->hostname);
 	print_pck_statistics(g_ft_ping_info->pck_transmitted, g_ft_ping_info->pck_received, \
 		&(g_ft_ping_info->starttime), &now);
+	print_rtt(g_ft_ping_info->min, g_ft_ping_info->avg, g_ft_ping_info->max, g_ft_ping_info->mdev);
 	exit(0);
 }

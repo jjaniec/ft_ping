@@ -102,6 +102,7 @@ typedef struct			s_ft_ping_info {
 	struct timeval		starttime;
 	unsigned int		pck_transmitted;
 	unsigned int		pck_received;
+	int					socket;
 	double				min;
 	double				avg;
 	double				max;
@@ -119,5 +120,7 @@ int					resolve_hostname(char *hostname, struct in_addr *ip);
 void				handle_sigalrm(int sig);
 
 void				handle_sigint(int sig);
+
+ssize_t				send_icmp_echo(int s, struct sockaddr_in *dest);
 
 #endif
