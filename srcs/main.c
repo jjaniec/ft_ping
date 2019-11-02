@@ -68,6 +68,7 @@ static int		init_socket(int *s)
 		dprintf(2, "Failed to set TOS option on socket\n");
 		r = 1;
 	}
+	g_ft_ping_info->socket = *s;
 	return (r);
 }
 
@@ -75,7 +76,7 @@ static int		init_socket(int *s)
 ** Init shared global struct
 */
 
-static int		init_ft_ping_info(int s, t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
+static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
 {
 	g_ft_ping_info = ft_ping_info;
 	ft_memset(\
@@ -83,11 +84,23 @@ static int		init_ft_ping_info(int s, t_ft_ping_info *ft_ping_info, char *hostnam
 		0, \
 		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *) \
 	);
-	ft_ping_info->socket = s;
 	ft_ping_info->addr = addr;
 	ft_ping_info->hostname = hostname;
 	return gettimeofday(&(g_ft_ping_info->starttime), NULL);
 
+}
+
+static char		**parse_opts(char **av)
+{
+	while (av && *av && **av == '-')
+	{
+		if (ft_strchr(*av, 'h'))
+			g_ft_ping_info->opt.h = true;
+		if (ft_strchr(*av, 'v'))
+			g_ft_ping_info->opt.v = true;
+		av++;
+	}
+	return (av);
 }
 
 /*
@@ -102,20 +115,23 @@ int		main(int ac, char **av)
 	struct sockaddr_in		addr;
 	int						s;
 	t_ft_ping_info			ft_ping_info;
+	char					**args;
 
-	if (ac == 1)
+	init_ft_ping_info(&ft_ping_info, av[1], &addr);
+	args = parse_opts(av + 1);
+	if (ac == 1 || ft_ping_info.opt.h)
 	{
 		printf("Usage: %s destination_ip\n", av[0]);
 		return (1);
 	}
-	else if (resolve_hostname(av[1], &ip))
+	else if (resolve_hostname(args[0], &ip))
 	{
-		dprintf(2, "%s: %s: Name or service not known\n", av[0], av[1]);
+		dprintf(2, "%s: %s: Name or service not known\n", av[0], args[1]);
 		return (1);
 	}
 	addr.sin_family = AF_INET;
 	addr.sin_addr = ip;
 	signal(SIGALRM, handle_sigalrm);
 	signal(SIGINT, handle_sigint);
-	return (init_socket(&s) || init_ft_ping_info(s, &ft_ping_info, av[1], &addr) || ft_ping(s, &addr));
+	return (init_socket(&s) || ft_ping(s, &addr));
 }

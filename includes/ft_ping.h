@@ -96,9 +96,13 @@
 # define PRId64 "lld"
 # define PRIx64 "llx"
 
+struct ft_ping_opt {
+	bool	v : 1;
+	bool	h : 1;
+};
+
 typedef struct			s_ft_ping_info {
 	struct sockaddr_in	*addr;
-	char				*hostname;
 	struct timeval		starttime;
 	unsigned int		pck_transmitted;
 	unsigned int		pck_received;
@@ -107,6 +111,8 @@ typedef struct			s_ft_ping_info {
 	double				avg;
 	double				max;
 	double				mdev;
+	char				*hostname;
+	struct ft_ping_opt	opt;
 	sig_atomic_t		wait_for_sigalrm;
 }						t_ft_ping_info;
 

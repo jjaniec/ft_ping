@@ -101,8 +101,8 @@ static int			format_reply_output(ssize_t bytes_recv, struct sockaddr_in *addr_re
 		update_rtt(timeval_diff);
 	}
 	else
-		printf("%zu bytes from %s: %s\n", \
-			ip_in->tot_len - sizeof(struct iphdr), inet_ntoa(addr_resp->sin_addr), \
+		printf("%zu bytes from %s: icmp_type=%d %s\n", \
+			ip_in->tot_len - sizeof(struct iphdr), inet_ntoa(addr_resp->sin_addr), icmp_in->type, \
 			(icmp_in->type < sizeof(icmp_responses_str)) ? (icmp_responses_str[icmp_in->type - 1]) : ("Unknown error code"));
 	return (0);
 }
