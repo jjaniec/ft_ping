@@ -29,7 +29,7 @@ static void		print_pck_statistics(unsigned int pck_transmitted, unsigned int pck
 ** the project subject
 */
 
-static void		print_rtt(double min, double avg, double max, double mdev)
+static void		print_rtt(double min, double avg, double max)
 {
 	printf("rtt min/avg/max = %.3f/%.3f/%.3f ms\n", \
 		min, \
@@ -42,12 +42,13 @@ void		handle_sigint(int sig)
 {
 	struct timeval	now;
 
+	(void)sig;
 	gettimeofday(&now, NULL);
 	write(1, "\n", 1);
 	print_statistics_header(g_ft_ping_info->hostname);
 	print_pck_statistics(g_ft_ping_info->pck_transmitted, g_ft_ping_info->pck_received, \
 		&(g_ft_ping_info->starttime), &now);
 	if (g_ft_ping_info->pck_received)
-		print_rtt(g_ft_ping_info->min, g_ft_ping_info->avg, g_ft_ping_info->max, g_ft_ping_info->mdev);
+		print_rtt(g_ft_ping_info->min, g_ft_ping_info->avg, g_ft_ping_info->max);
 	exit(0);
 }

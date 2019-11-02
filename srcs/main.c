@@ -76,7 +76,7 @@ static int		init_socket(int *s)
 ** Init shared global struct
 */
 
-static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, struct sockaddr_in *addr)
+static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, struct sockaddr_in *addr)
 {
 	g_ft_ping_info = ft_ping_info;
 	ft_memset(\
@@ -85,12 +85,20 @@ static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, char *hostname, stru
 		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *) \
 	);
 	ft_ping_info->addr = addr;
-	ft_ping_info->hostname = hostname;
+	ft_ping_info->pck_count = FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT;
 	return gettimeofday(&(g_ft_ping_info->starttime), NULL);
 
 }
 
-static char		**parse_opts(char **av)
+static int		ft_str_isnum(char *s)
+{
+	while (s++ && *s)
+		if (*s > '9' || *s < '0')
+			return (0);
+	return (1);
+}
+
+static char		**parse_opts(char **av, char *name)
 {
 	while (av && *av && **av == '-')
 	{
@@ -98,6 +106,17 @@ static char		**parse_opts(char **av)
 			g_ft_ping_info->opt.h = true;
 		if (ft_strchr(*av, 'v'))
 			g_ft_ping_info->opt.v = true;
+		if (ft_strchr(*av, 'c'))
+		{
+			g_ft_ping_info->opt.c = true;
+			if (!av[1] || !ft_str_isnum(av[1]) || \
+				(g_ft_ping_info->pck_count = ft_atoi(av[1])) < 1 )
+			{
+				dprintf(2, "%s: bad number of packets to transmit.\n", name);
+				exit(1);
+			}
+			av++;
+		}
 		av++;
 	}
 	return (av);
@@ -117,8 +136,9 @@ int		main(int ac, char **av)
 	t_ft_ping_info			ft_ping_info;
 	char					**args;
 
-	init_ft_ping_info(&ft_ping_info, av[1], &addr);
-	args = parse_opts(av + 1);
+	init_ft_ping_info(&ft_ping_info, &addr);
+	args = parse_opts(av + 1, av[0]);
+	g_ft_ping_info->hostname = args[0];
 	if (ac == 1 || ft_ping_info.opt.h)
 	{
 		printf("Usage: %s destination_ip\n", av[0]);
@@ -126,7 +146,7 @@ int		main(int ac, char **av)
 	}
 	else if (resolve_hostname(args[0], &ip))
 	{
-		dprintf(2, "%s: %s: Name or service not known\n", av[0], args[1]);
+		dprintf(2, "%s: %s: Name or service not known\n", av[0], args[0]);
 		return (1);
 	}
 	addr.sin_family = AF_INET;

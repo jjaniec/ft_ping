@@ -40,10 +40,8 @@ static const char	*icmp_responses_str[] =
 static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char *buff)
 {
 	char			controlbuff[FT_PING_BUFF_LEN];
-	ssize_t			bytes_recv;
 	struct iovec	iov_reply;
 	struct msghdr	reply;
-	// struct cmsghdr *reply_cmhdr;
 
 	iov_reply.iov_base = buff;
 	iov_reply.iov_len = sizeof(char) * FT_PING_BUFF_LEN;
@@ -81,7 +79,7 @@ static double		calc_timeval_diff(struct timeval *start, struct timeval *stop)
 ** cmsghdr: http://alas.matf.bg.ac.rs/manuals/lspe/snode=153.html
 */
 
-static int			format_reply_output(ssize_t bytes_recv, struct sockaddr_in *addr_resp, char *reply_data, struct timeval *stop)
+static int			format_reply_output(struct sockaddr_in *addr_resp, char *reply_data, struct timeval *stop)
 {
 	struct iphdr		*ip_in;
 	struct icmphdr		*icmp_in;
@@ -112,25 +110,23 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 	ssize_t				bytes_recv;
 	char				reply_buff[FT_PING_BUFF_LEN];
 	struct timeval		time_reply;
-	struct msghdr		reply;
 	struct sockaddr_in	addr_resp;
 
-	if (g_ft_ping_info->pck_transmitted != FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT)
-		alarm(1);
-	else
-		return (0);
-	if ((bytes_recv = recv_icmp_echo_reply(s, addr, reply_buff)) < 0)
+	while (g_ft_ping_info->pck_transmitted > g_ft_ping_info->pck_received || \
+		g_ft_ping_info->pck_transmitted < g_ft_ping_info->pck_count)
 	{
-		dprintf(2, "recv() failed\n");
-		exit(1);
+		if ((bytes_recv = recv_icmp_echo_reply(s, addr, reply_buff)) < 0)
+		{
+			dprintf(2, "recv() failed\n");
+			exit(1);
+		}
+		g_ft_ping_info->pck_received++;
+		gettimeofday(&time_reply, NULL);
+		format_reply_output(&addr_resp, reply_buff, &time_reply);
 	}
-	g_ft_ping_info->pck_received++;
-	gettimeofday(&time_reply, NULL);
-	format_reply_output(bytes_recv, &addr_resp, reply_buff, &time_reply);
-	if (g_ft_ping_info->pck_transmitted != FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT)
-		return (watch_icmp_replies(s, addr));
-	else
-		return (0);
+	// while (g_ft_ping_info->pck_transmitted > g_ft_ping_info->pck_received)
+		// ;
+	handle_sigint(0);
 }
 
 int					ft_ping(int s, struct sockaddr_in *addr)
