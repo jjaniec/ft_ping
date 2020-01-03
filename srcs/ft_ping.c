@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2019/10/26 19:50:22 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/03 22:48:55 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 	struct sockaddr_in	addr_resp;
 
 	while (g_ft_ping_info->pck_transmitted > g_ft_ping_info->pck_received || \
-		g_ft_ping_info->pck_transmitted < g_ft_ping_info->pck_count)
+		g_ft_ping_info->pck_transmitted < (unsigned int)g_ft_ping_info->pck_count)
 	{
 		if ((bytes_recv = recv_icmp_echo_reply(s, addr, reply_buff)) < 0)
 		{
@@ -124,9 +124,8 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 		gettimeofday(&time_reply, NULL);
 		format_reply_output(&addr_resp, reply_buff, &time_reply);
 	}
-	// while (g_ft_ping_info->pck_transmitted > g_ft_ping_info->pck_received)
-		// ;
 	handle_sigint(0);
+	return (0);
 }
 
 int					ft_ping(int s, struct sockaddr_in *addr)

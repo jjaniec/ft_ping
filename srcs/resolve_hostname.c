@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   resolve_hostname.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2019/10/27 19:50:22 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/03 22:30:25 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,5 +29,6 @@ int			resolve_hostname(char *hostname, struct in_addr *ip)
 	if (getaddrinfo(hostname, NULL, &hints, &res))
 		return (1);
 	*ip = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
+	free(res);
 	return (0);
 }

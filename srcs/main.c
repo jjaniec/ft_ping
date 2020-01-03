@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2019/10/26 19:50:22 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/03 22:46:45 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ static int		init_socket(int *s)
 static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, struct sockaddr_in *addr)
 {
 	g_ft_ping_info = ft_ping_info;
+	ft_memset(addr, 0, sizeof(struct sockaddr_in));
 	ft_memset(\
 		(void *)ft_ping_info + sizeof(struct sockaddr_in *), \
 		0, \
@@ -139,7 +140,7 @@ int		main(int ac, char **av)
 	init_ft_ping_info(&ft_ping_info, &addr);
 	args = parse_opts(av + 1, av[0]);
 	g_ft_ping_info->hostname = args[0];
-	if (ac == 1 || ft_ping_info.opt.h)
+	if (ac == 1 || ft_ping_info.opt.h || !g_ft_ping_info->hostname)
 	{
 		printf("Usage: %s destination_ip\n", av[0]);
 		return (1);
