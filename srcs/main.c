@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2019/10/26 19:50:22 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/08 20:19:07 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,26 @@
 t_ft_ping_info		*g_ft_ping_info;
 
 /*
-Allowed functions:
-- getpid.
-- getuid.
-- getaddrinfo.
-- gettimeofday.
-- inet_ntop.
-- inet_pton.
-- exit.
-- signal.
-- alarm.
-- setsockopt.
-- recvmsg.
-- sendto.
-- socket.
+** Allowed functions:
+** - getpid.
+** - getuid.
+** - getaddrinfo.
+** - gettimeofday.
+** - inet_ntop.
+** - inet_pton.
+** - exit.
+** - signal.
+** - alarm.
+** - setsockopt.
+** - recvmsg.
+** - sendto.
+** - socket.
 */
 
 /*
 ** Init socket & set socket options
-** https://stackoverflow.com/questions/32593697/understanding-the-msghdr-structure-from-sys-socket-h
+** https://stackoverflow.com/questions/32593697/ \
+**   understanding-the-msghdr-structure-from-sys-socket-h
 */
 
 static int		init_socket(int *s)
@@ -76,18 +77,17 @@ static int		init_socket(int *s)
 ** Init shared global struct
 */
 
-static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, struct sockaddr_in *addr)
+static int		init_ft_ping_info(t_ft_ping_info *ft_ping_info, \
+					struct sockaddr_in *addr)
 {
 	g_ft_ping_info = ft_ping_info;
 	ft_memset(\
 		(void *)ft_ping_info + sizeof(struct sockaddr_in *), \
 		0, \
-		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *) \
-	);
+		sizeof(t_ft_ping_info) - sizeof(struct sockaddr_in *));
 	ft_ping_info->addr = addr;
 	ft_ping_info->pck_count = FT_PING_DEFAULT_ICMP_ECHO_SEQ_COUNT;
-	return gettimeofday(&(g_ft_ping_info->starttime), NULL);
-
+	return (gettimeofday(&(g_ft_ping_info->starttime), NULL));
 }
 
 static int		ft_str_isnum(char *s)
@@ -110,7 +110,7 @@ static char		**parse_opts(char **av, char *name)
 		{
 			g_ft_ping_info->opt.c = true;
 			if (!av[1] || !ft_str_isnum(av[1]) || \
-				(g_ft_ping_info->pck_count = ft_atoi(av[1])) < 1 )
+				(g_ft_ping_info->pck_count = ft_atoi(av[1])) < 1)
 			{
 				dprintf(2, "%s: bad number of packets to transmit.\n", name);
 				exit(1);
@@ -124,11 +124,13 @@ static char		**parse_opts(char **av, char *name)
 
 /*
 ** in_addr: https://apr.apache.org/docs/apr/trunk/structin__addr.html
-** sockaddr_in: https://docs.huihoo.com/doxygen/linux/kernel/3.7/structsockaddr__in.html
-** https://stackoverflow.com/questions/18609397/whats-the-difference-between-sockaddr-sockaddr-in-and-sockaddr-in6
+** sockaddr_in: https://docs.huihoo.com/doxygen/ \
+**   linux/kernel/3.7/structsockaddr__in.html
+** https://stackoverflow.com/questions/18609397/ \
+**   whats-the-difference-between-sockaddr-sockaddr-in-and-sockaddr-in6
 */
 
-int		main(int ac, char **av)
+int				main(int ac, char **av)
 {
 	struct in_addr			ip;
 	struct sockaddr_in		addr;

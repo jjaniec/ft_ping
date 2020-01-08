@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2019/10/26 19:50:22 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/08 20:21:46 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 extern t_ft_ping_info	*g_ft_ping_info;
 
-static const char	*icmp_responses_str[] =
+static const char	*g_icmp_responses_str[] =
 {
 	[ICMP_DEST_UNREACH]		= "Destination Unreachable",
 	[ICMP_SOURCE_QUENCH]	= "Source Quench",
@@ -31,13 +31,15 @@ static const char	*icmp_responses_str[] =
 };
 
 /*
-** https://stackoverflow.com/questions/32593697/understanding-the-msghdr-structure-from-sys-socket-h
+** https://stackoverflow.com/questions/32593697/\
+**   understanding-the-msghdr-structure-from-sys-socket-h
 ** size_t recvmsg(int socket, struct msghdr *message, int flags);
 ** https://blog.benjojo.co.uk/post/linux-icmp-type-69
 ** https://www.perlmonks.org/?node_id=582132
 */
 
-static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char *buff)
+static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, \
+						char *buff)
 {
 	char			controlbuff[FT_PING_BUFF_LEN];
 	struct iovec	iov_reply;
@@ -53,21 +55,18 @@ static ssize_t		recv_icmp_echo_reply(int s, struct sockaddr_in *addr_resp, char 
 	reply.msg_controllen = sizeof(controlbuff);
 	reply.msg_flags = 0;
 	ft_memset(buff, 0, sizeof(char) * FT_PING_BUFF_LEN);
-	return (
-		recvmsg(s, &reply, 0)
-	);
+	return (recvmsg(s, &reply, 0));
 }
 
 /*
 ** Calculate time difference between 2 timeval structs using tv_sec & tv_usec
 */
 
-static double		calc_timeval_diff(struct timeval *start, struct timeval *stop)
+static double		calc_timeval_diff(struct timeval *start, \
+						struct timeval *stop)
 {
-	return (
-		(double)(stop->tv_sec - start->tv_sec) * 1000 + \
-		(double)(stop->tv_usec - start->tv_usec) / 1000
-	);
+	return ((double)(stop->tv_sec - start->tv_sec) * 1000 + \
+		(double)(stop->tv_usec - start->tv_usec) / 1000);
 }
 
 /*
@@ -75,11 +74,13 @@ static double		calc_timeval_diff(struct timeval *start, struct timeval *stop)
 **
 ** iovec: https://doc.riot-os.org/structiovec.html
 ** msghdr: https://docs.huihoo.com/doxygen/linux/kernel/3.7/structmsghdr.html
-** https://www.quora.com/What-is-the-difference-between-recv-and-recvmsg-System-call-on-Linux
+** https://www.quora.com/What-is-the-difference-between- \
+**   recv-and-recvmsg-System-call-on-Linux
 ** cmsghdr: http://alas.matf.bg.ac.rs/manuals/lspe/snode=153.html
 */
 
-static int			format_reply_output(struct sockaddr_in *addr_resp, char *reply_data, struct timeval *stop)
+static int			format_reply_output(struct sockaddr_in *addr_resp, \
+						char *reply_data, struct timeval *stop)
 {
 	struct iphdr		*ip_in;
 	struct icmphdr		*icmp_in;
@@ -87,21 +88,24 @@ static int			format_reply_output(struct sockaddr_in *addr_resp, char *reply_data
 
 	ip_in = (struct iphdr *)reply_data;
 	icmp_in = (void *)reply_data + IPHDR_SIZE;
-	timeval_diff = calc_timeval_diff((struct timeval *)((void *)reply_data + IPHDR_SIZE + ICMPHDR_SIZE + FT_PING_DATA_TIMESTAMP_OFFSET), stop);
+	timeval_diff = calc_timeval_diff((struct timeval *)((void *)reply_data + \
+		IPHDR_SIZE + ICMPHDR_SIZE + FT_PING_DATA_TIMESTAMP_OFFSET), stop);
 	if (icmp_in->un.echo.id != htons(getpid()))
-		return 0;
+		return (0);
 	if (icmp_in->type == ICMP_ECHOREPLY)
 	{
 		printf("%"PRIu16" bytes from %s: icmp_seq=%d ttl=%d time=%'.1fms\n", \
 			(uint16_t)(ntohs(ip_in->tot_len) - IPHDR_SIZE), \
-			inet_ntoa((struct in_addr) {.s_addr = ip_in->saddr}), icmp_in->un.echo.sequence, ip_in->ttl, \
-			timeval_diff);
+			inet_ntoa((struct in_addr) {.s_addr = ip_in->saddr}), \
+				icmp_in->un.echo.sequence, ip_in->ttl, timeval_diff);
 		update_rtt(timeval_diff);
 	}
 	else
 		printf("%zu bytes from %s: icmp_type=%d %s\n", \
-			ip_in->tot_len - sizeof(struct iphdr), inet_ntoa(addr_resp->sin_addr), icmp_in->type, \
-			(icmp_in->type < sizeof(icmp_responses_str)) ? (icmp_responses_str[icmp_in->type - 1]) : ("Unknown error code"));
+			ip_in->tot_len - sizeof(struct iphdr), \
+			inet_ntoa(addr_resp->sin_addr), icmp_in->type, \
+			(icmp_in->type < sizeof(g_icmp_responses_str)) ? \
+			(g_icmp_responses_str[icmp_in->type - 1]) : ("Unknown error code"));
 	return (0);
 }
 
@@ -124,8 +128,6 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 		gettimeofday(&time_reply, NULL);
 		format_reply_output(&addr_resp, reply_buff, &time_reply);
 	}
-	// while (g_ft_ping_info->pck_transmitted > g_ft_ping_info->pck_received)
-		// ;
 	handle_sigint(0);
 }
 
