@@ -86,24 +86,29 @@ static int		ft_str_isnum(char *s)
 	return (1);
 }
 
-static char		**parse_opts(char **av, char *name)
+static char		**parse_opts(char **av)
 {
+	char	*s;
+
 	while (av && *av && **av == '-')
 	{
-		if (ft_strchr(*av, 'h'))
-			g_ft_ping_info->opt.h = true;
-		if (ft_strchr(*av, 'v'))
-			g_ft_ping_info->opt.v = true;
-		if (ft_strchr(*av, 'c'))
+		s = (*av);
+		while (s++ && *s)
 		{
-			g_ft_ping_info->opt.c = true;
-			if (!av[1] || !ft_str_isnum(av[1]) || \
-				(g_ft_ping_info->pck_count = ft_atoi(av[1])) < 1)
+			if (*s == 'h')
+				g_ft_ping_info->opt.h = true;
+			else if (*s == 'v')
+				g_ft_ping_info->opt.v = true;
+			else if (*s == 'c')
 			{
-				dprintf(2, "%s: bad number of packets to transmit.\n", name);
-				exit(1);
+				g_ft_ping_info->opt.c = true;
+				if (!av[1] || !ft_str_isnum(av[1]) || \
+					(g_ft_ping_info->pck_count = ft_atoi(av[1])) < 1)
+					return (NULL);
+				av++;
 			}
-			av++;
+			else
+				return (NULL);
 		}
 		av++;
 	}
@@ -127,11 +132,10 @@ int				main(int ac, char **av)
 	char					**args;
 
 	init_ft_ping_info(&ft_ping_info, &addr);
-	args = parse_opts(av + 1, av[0]);
-	g_ft_ping_info->hostname = args[0];
-	if (ac == 1 || ft_ping_info.opt.h || !g_ft_ping_info->hostname)
+	args = parse_opts(av + 1);
+	if (ac == 1 || ft_ping_info.opt.h || !args || !args[0])
 	{
-		printf("Usage: %s destination_ip\n", av[0]);
+		printf("Usage: %s [-h -v -c [count]] destination_ip\n", av[0]);
 		return (1);
 	}
 	else if (resolve_hostname(args[0], &ip))
@@ -139,6 +143,7 @@ int				main(int ac, char **av)
 		dprintf(2, "%s: %s: Name or service not known\n", av[0], args[0]);
 		return (1);
 	}
+	g_ft_ping_info->hostname = args[0];
 	addr.sin_family = AF_INET;
 	addr.sin_addr = ip;
 	signal(SIGALRM, handle_sigalrm);

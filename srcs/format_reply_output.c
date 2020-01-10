@@ -14,7 +14,7 @@
 
 extern t_ft_ping_info	*g_ft_ping_info;
 
-static const char	*g_icmp_responses_str[] =
+static char			*g_icmp_responses_str[] =
 {
 	[ICMP_DEST_UNREACH]		= "Destination Unreachable",
 	[ICMP_SOURCE_QUENCH]	= "Source Quench",
