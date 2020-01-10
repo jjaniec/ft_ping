@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/01/03 22:50:32 by jjaniec           #+#    #+#             */
-/*   Updated: 2020/01/03 23:00:11 by jjaniec          ###   ########.fr       */
+/*   Created: 2020/01/08 20:22:03 by jjaniec           #+#    #+#             */
+/*   Updated: 2020/01/10 17:49:55 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static void			fill_iphdr(struct iphdr *ip, struct in_addr *dest)
 	ip->ttl = FT_PING_TTL;
 	ip->protocol = IPPROTO_ICMP;
 	ip->check = 0;
-	ip->saddr = INADDR_ANY; /*inet_aton("0.0.0.0")*/;
+	ip->saddr = INADDR_ANY;
 	ip->daddr = dest->s_addr;
 }
 
@@ -110,12 +110,14 @@ ssize_t				send_icmp_echo(int s, struct sockaddr_in *dest)
 	fill_iphdr(ip_out, &(dest->sin_addr));
 	fill_packet_data(data_ptr, FT_PING_DATA_LEN);
 	fill_icmphdr(icmp_out);
-	if ((r = (sendto(s, buff, FT_PING_IP_TOT_LEN, 0, (struct sockaddr *)dest, sizeof(*dest)))) != 1)
+	if ((r = (sendto(s, buff, FT_PING_IP_TOT_LEN, 0, \
+		(struct sockaddr *)dest, sizeof(*dest)))) != 1)
 		g_ft_ping_info->pck_transmitted++;
 	else
 		dprintf(2, "Sendto() error\n");
 	g_ft_ping_info->wait_for_sigalrm = true;
-	if (g_ft_ping_info->pck_transmitted < (unsigned int)g_ft_ping_info->pck_count)
+	if (g_ft_ping_info->pck_transmitted < \
+		(unsigned int)g_ft_ping_info->pck_count)
 		alarm(1);
 	return (r);
 }
