@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2020/01/08 20:19:07 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/10 14:37:22 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,33 +42,20 @@ static int		init_socket(int *s)
 	int			r;
 	int			on;
 
-	r = 0;
+	r = 1;
 	on = 255;
 	if ((*s = socket(PF_INET, FT_PING_SOCK_TYPE, FT_PING_SOCK_PROTO)) < 0)
-	{
 		dprintf(2, "socket() error, are you root ?\n");
-		r = 1;
-	}
 	else if (setsockopt(*s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) != 0)
-	{
 		dprintf(2, "Failed to set IP_HDRINCL option on socket\n");
-		r = 1;
-	}
 	else if (setsockopt(*s, IPPROTO_IP, IP_TTL, &on, sizeof(on)) != 0)
-	{
 		dprintf(2, "Failed to set TTL option on socket\n");
-		r = 1;
-	}
 	else if (setsockopt(*s, IPPROTO_IP, IP_PKTINFO, &on, sizeof(on)) != 0)
-	{
 		dprintf(2, "Failed to set PKTINFO option on socket\n");
-		r = 1;
-	}
 	else if (setsockopt(*s, IPPROTO_IP, IP_TOS, &on, sizeof(on)) != 0)
-	{
 		dprintf(2, "Failed to set TOS option on socket\n");
-		r = 1;
-	}
+	else
+		r = 0;
 	g_ft_ping_info->socket = *s;
 	return (r);
 }

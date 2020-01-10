@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/26 17:52:43 by jjaniec           #+#    #+#             */
-/*   Updated: 2020/01/08 20:21:46 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/10 14:14:33 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ static int			format_reply_output(struct sockaddr_in *addr_resp, \
 		return (0);
 	if (icmp_in->type == ICMP_ECHOREPLY)
 	{
-		printf("%"PRIu16" bytes from %s: icmp_seq=%d ttl=%d time=%'.1fms\n", \
+		printf("%hu bytes from %s: icmp_seq=%d ttl=%d time=%'.1fms\n", \
 			(uint16_t)(ntohs(ip_in->tot_len) - IPHDR_SIZE), \
 			inet_ntoa((struct in_addr) {.s_addr = ip_in->saddr}), \
 				icmp_in->un.echo.sequence, ip_in->ttl, timeval_diff);
