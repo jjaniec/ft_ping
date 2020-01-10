@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/08 20:22:03 by jjaniec           #+#    #+#             */
-/*   Updated: 2020/01/08 20:22:15 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/10 16:33:00 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,8 @@ ssize_t				send_icmp_echo(int s, struct sockaddr_in *dest)
 	else
 		dprintf(2, "Sendto() error\n");
 	g_ft_ping_info->wait_for_sigalrm = true;
-	if (g_ft_ping_info->pck_transmitted < g_ft_ping_info->pck_count)
+	if (g_ft_ping_info->pck_transmitted < \
+		(unsigned int)g_ft_ping_info->pck_count)
 		alarm(1);
 	return (r);
 }

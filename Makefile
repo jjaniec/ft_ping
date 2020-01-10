@@ -21,6 +21,7 @@ SRC_NAME = 	calc_checksum.c \
 			handle_sigint.c \
 			send_icmp_echo.c \
 			update_rtt.c \
+			format_reply_output.c \
 			main.c
 
 SRC_DIR = ./srcs/
@@ -31,7 +32,7 @@ SRC = $(addprefix $(SRC_DIR), $(SRC_NAME))
 OBJ = $(addprefix $(OBJ_DIR), $(SRC_NAME:.c=.o))
 
 CC = gcc
-CFLAGS = -Wall -Wextra # -Werror
+CFLAGS = -Wall -Wextra -Werror
 # DEV_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer
 IFLAGS = -I./ft_printf/includes -I./$(INCLUDES_DIR)
 LFLAGS = -L./ft_printf -lftprintf

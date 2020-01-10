@@ -17,6 +17,7 @@
 ** https://stackoverflow.com/questions/21099041/why-do-we-cast- \
 **	sockaddr-in-to-sockaddr-when-calling-bind
 ** https://www.binarytides.com/hostname-to-ip-address-c-sockets-linux/
+** freeaddrinfo() forbidden by the subject
 */
 
 int			resolve_hostname(char *hostname, struct in_addr *ip)
@@ -30,5 +31,6 @@ int			resolve_hostname(char *hostname, struct in_addr *ip)
 	if (getaddrinfo(hostname, NULL, &hints, &res))
 		return (1);
 	*ip = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
+	free(res);
 	return (0);
 }

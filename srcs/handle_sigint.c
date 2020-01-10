@@ -6,7 +6,7 @@
 /*   By: jjaniec <jjaniec@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/08 20:14:45 by jjaniec           #+#    #+#             */
-/*   Updated: 2020/01/08 20:16:37 by jjaniec          ###   ########.fr       */
+/*   Updated: 2020/01/10 16:35:11 by jjaniec          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,20 @@ static void		print_pck_statistics(unsigned int pck_transmitted, \
 					unsigned int pck_received, struct timeval *start, \
 					struct timeval *stop)
 {
-	printf("%d packets transmitted, %d received," \
-		"%d%% packet loss, time %.0fms\n", \
+	printf("%d packets transmitted, %d received, ", \
 		pck_transmitted, \
-		pck_received, \
-		(!pck_received) ? (100) : \
-			((1 - (pck_transmitted / pck_received)) * 100), \
-			(double)(stop->tv_sec - start->tv_sec) * 1000 + \
-			(double)(stop->tv_usec - start->tv_usec) / 1000);
+		pck_received);
+	if (pck_received == pck_transmitted)
+		printf("0%%");
+	else if (!pck_received)
+		printf("100%%");
+	else
+		printf("%g%%", \
+			((double)(1 - (double)((double)pck_received / \
+				(double)pck_transmitted)) * 100));
+	printf(" packet loss, time %.0fms\n",\
+		(double)(stop->tv_sec - start->tv_sec) * 1000 + \
+		(double)(stop->tv_usec - start->tv_usec) / 1000);
 }
 
 /*

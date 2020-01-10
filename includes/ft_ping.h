@@ -206,4 +206,7 @@ ssize_t						send_icmp_echo(int s, struct sockaddr_in *dest);
 
 void						update_rtt(double time);
 
+int							format_reply_output(struct sockaddr_in *addr_resp, \
+								char *reply_data, struct timeval *stop);
+
 #endif
