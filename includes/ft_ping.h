@@ -32,6 +32,7 @@
 # include <string.h>
 # include <sys/time.h>
 # include <signal.h>
+# include <inttypes.h>
 
 /*
 ** sizeof(struct iphdr)

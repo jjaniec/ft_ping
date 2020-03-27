@@ -58,9 +58,9 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 			dprintf(2, "recv() failed\n");
 			exit(1);
 		}
-		g_ft_ping_info->pck_received++;
 		gettimeofday(&time_reply, NULL);
-		format_reply_output(&addr_resp, reply_buff, &time_reply);
+		if (!format_reply_output(&addr_resp, reply_buff, &time_reply))
+			g_ft_ping_info->pck_received++;
 	}
 	handle_sigint(0);
 	return (0);
@@ -70,6 +70,7 @@ int					ft_ping(int s, struct sockaddr_in *addr)
 {
 	ssize_t				bytes_sent;
 
+	printf("Getpid() = %d / %d\n", getpid(), htons(getpid()));
 	printf("PING %s (%s) %d(%d) bytes of data.\n", g_ft_ping_info->hostname, \
 		inet_ntoa(g_ft_ping_info->addr->sin_addr), \
 		FT_PING_DATA_LEN, FT_PING_DATA_LEN + IPHDR_SIZE + ICMPHDR_SIZE);
