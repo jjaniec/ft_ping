@@ -53,7 +53,7 @@ static int			watch_icmp_replies(int s, struct sockaddr_in *addr)
 		g_ft_ping_info->pck_transmitted < \
 			(unsigned int)g_ft_ping_info->pck_count)
 	{
-		if ((bytes_recv = recv_icmp_echo_reply(s, addr, reply_buff)) < 0)
+		if ((bytes_recv = recv_icmp_echo_reply(s, &addr_resp, reply_buff)) < 0)
 		{
 			dprintf(2, "recv() failed\n");
 			exit(1);

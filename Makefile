@@ -33,7 +33,7 @@ OBJ = $(addprefix $(OBJ_DIR), $(SRC_NAME:.c=.o))
 
 CC = gcc
 CFLAGS = -Wall -Wextra # -Werror
-# DEV_FLAGS = -g -fsanitize=address -fno-omit-frame-pointer
+DEV_FLAGS = -g # -fsanitize=address -fno-omit-frame-pointer
 IFLAGS = -I./ft_printf/includes -I./$(INCLUDES_DIR)
 LFLAGS = -L./ft_printf -lftprintf
 
